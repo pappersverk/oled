@@ -53,6 +53,10 @@ defmodule OLED.Display.Impl.SSD1306 do
     :rst_pin
   ]
 
+  @display_opts [
+    memory_mode: :horizontal
+  ]
+
   defstruct width: nil,
             height: nil,
             rst: nil,
@@ -332,20 +336,35 @@ defmodule OLED.Display.Impl.SSD1306 do
     end
   end
 
-  def display(state) do
+  def display(state, opts \\ []) do
+    opts = Keyword.merge(@display_opts, opts)
+
+    memory_mode =
+      get_memory_mode(opts[:memory_mode] || :horizontal)
+
     state =
       state
-      |> command(<<@ssd1306_memorymode, 0>>)
+      |> command(<<@ssd1306_memorymode, memory_mode>>)
       |> command(<<@ssd1306_columnaddr, 0, @lcd_total_width - 1>>)
       |> command(<<@ssd1306_pageaddr, 0, trunc(@lcd_total_height / 8 - 1)>>)
 
     with %__MODULE__{} <- state,
          :ok <- GPIO.write(state.dc, 1),
          {:ok, _} <- SPI.transfer(state.spi, state.buffer) do
+
       # Restore to page addressing mode
       command(state, <<@ssd1306_memorymode, 2>>)
     end
   end
+
+  def display_frame(state, data, opts) do
+    if data != (state.width * state.height / 8) do
+      display(%{state | buffer: data}, opts)
+    else
+      {:error, :invalid_data_size}
+    end
+  end
+
 
   def command({:error, _} = error, _cmd),
     do: error
@@ -387,4 +406,8 @@ defmodule OLED.Display.Impl.SSD1306 do
 
   defp set_compins(error),
     do: error
+
+  defp get_memory_mode(:horizontal), do: 0x00
+  defp get_memory_mode(:vertical), do: 0x01
+  defp get_memory_mode(:page_addr), do: 0x02
 end

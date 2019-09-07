@@ -36,6 +36,10 @@ defmodule OLED.Display.Server do
           mode: :normal | :xor
         ]
 
+  @type display_frame_opts :: [
+          memory_mode: :horizontal | :vertical | :page_addr
+        ]
+
   @doc false
   def start_link(config, opts \\ []) do
     GenServer.start_link(__MODULE__, config, opts)
@@ -48,6 +52,10 @@ defmodule OLED.Display.Server do
   @doc false
   def display(server),
     do: GenServer.call(server, :display)
+
+  @doc false
+  def display_frame(server, data, opts \\ []),
+    do: GenServer.call(server, {:display_frame, data, opts})
 
   @doc false
   def clear(server, pixel_state \\ :off),
@@ -81,6 +89,13 @@ defmodule OLED.Display.Server do
   def handle_call(:display, _from, {impl, state}) do
     state
     |> impl.display()
+    |> handle_response(impl, state)
+  end
+
+  @doc false
+  def handle_call({:display_frame, data, opts}, _from, {impl, state}) do
+    state
+    |> impl.display_frame(data, opts)
     |> handle_response(impl, state)
   end
 

@@ -75,6 +75,9 @@ defmodule OLED.Display do
       def display(),
         do: Server.display(@me)
 
+      def display_frame(data, opts \\ []),
+        do: Server.display_frame(@me, data, opts)
+
       def clear(),
         do: Server.clear(@me)
 
@@ -106,6 +109,11 @@ defmodule OLED.Display do
   drawing commands to make them visible on screen.
   """
   @callback display() :: :ok
+
+  @doc """
+  Transfer a data frame to the display buffer.
+  """
+  @callback display_frame(data :: binary(), opts :: Server.display_frame_opts()) :: :ok
 
   @doc """
   Clear the buffer.

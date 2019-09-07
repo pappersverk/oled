@@ -60,7 +60,7 @@ defmodule OLED.BufferTestHelper do
   defp to_bytes(<<>>, acc),
     do: acc
 
-  defp empty_buffer(w, h, v \\ 0) do
+  defp empty_buffer(w, h, v) do
     for _ <- 1..trunc(w * h / 8), into: <<>> do
       <<v::8>>
     end
