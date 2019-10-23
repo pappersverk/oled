@@ -25,17 +25,6 @@ defmodule OLED.Display.Server do
           mode: :normal | :xor
         ]
 
-  @typedoc """
-  Image options
-
-  `mode` - Can be `:normal` or `:xor`
-  `threshold` - Level from 0 to 255 used to determine when a pixel is considered High or Low
-  """
-  @type image_opts :: [
-          threshold: integer(),
-          mode: :normal | :xor
-        ]
-
   @type display_frame_opts :: [
           memory_mode: :horizontal | :vertical | :page_addr
         ]
@@ -78,12 +67,12 @@ defmodule OLED.Display.Server do
     do: GenServer.call(server, {:line_v, x, y, height, opts})
 
   @doc false
-  def image(server, path, x, y, opts \\ []),
-    do: GenServer.call(server, {:image, path, x, y, opts})
-
-  @doc false
   def rect(server, x, y, width, height, opts),
     do: GenServer.call(server, {:rect, x, y, width, height, opts})
+
+  @doc false
+  def get_dimensions(server),
+    do: GenServer.call(server, :get_dimensions)
 
   @doc false
   def handle_call(:display, _from, {impl, state}) do
@@ -135,10 +124,10 @@ defmodule OLED.Display.Server do
     |> handle_response(impl, state)
   end
 
-  def handle_call({:image, path, x, y, opts}, _from, {impl, state}) do
-    state
-    |> impl.image(path, x, y, opts)
-    |> handle_response(impl, state)
+  def handle_call(:get_dimensions, _from, {impl, state}) do
+    res = impl.get_dimensions(state)
+
+    {:reply, res, {impl, state}}
   end
 
   defp handle_response({:error, _} = error, impl, old_state),

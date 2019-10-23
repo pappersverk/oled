@@ -2,6 +2,7 @@ defmodule OLED.MixProject do
   use Mix.Project
 
   @version "0.1.0"
+  @all_targets [:rpi, :rpi0, :rpi2, :rpi3, :rpi3a, :rpi4, :bbb, :x86_64]
 
   def project do
     [
@@ -24,7 +25,8 @@ defmodule OLED.MixProject do
 
   defp description do
     """
-    OLED is a library to manage the monochrome OLED screen based on chip SSD1306 using SPI comunication.
+    OLED is a library to manage the monochrome OLED screen based on chip SSD1306.
+    Implements a Scenic driver but also set of graphic primitves to work standalone.
     """
   end
 
@@ -66,11 +68,14 @@ defmodule OLED.MixProject do
   defp deps do
     [
       {:circuits_spi, "~> 0.1"},
+      {:circuits_i2c, "~> 0.1"},
       {:circuits_gpio, "~> 0.1"},
+      {:scenic, "~> 0.10", optional: true},
+      {:scenic_driver_nerves_rpi, "~> 0.10", optional: true, targets: @all_targets},
+      {:rpi_fb_capture, "~> 0.1.0", optional: true},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:earmark, "~> 1.3", only: :dev, runtime: false},
-      {:dialyxir, "1.0.0-rc.4", only: :dev, runtime: false},
-      {:erl_img, github: "evanmiller/erl_img"}
+      {:dialyxir, "1.0.0-rc.4", only: :dev, runtime: false}
     ]
   end
 

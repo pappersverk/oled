@@ -13,10 +13,11 @@ defmodule OLED.Display do
 
   Could be configured with:
       config :my_app, MyApp.MyDisplay,
-        driver: :ssd1306,
-        spi_dev: "spidev0.0",
         width: 128,
         height: 64,
+        driver: :ssd1306,
+        type: :spi,
+        device: "spidev0.0",
         rst_pin: 25,
         dc_pin: 24
 
@@ -24,7 +25,7 @@ defmodule OLED.Display do
 
     * `:driver` - For now only `:ssd1306` is available
 
-    * `:spi_dev` - SPI device
+    * `:type` - Type of connection: (i.e.: `:spi`, `:i2c`)
 
     * `:width` - Display width
 
@@ -95,9 +96,6 @@ defmodule OLED.Display do
 
       def line_v(x, y, height, opts \\ []),
         do: Server.line_v(@me, x, y, height, opts)
-
-      def image(path, x, y, opts \\ []),
-        do: Server.image(@me, path, x, y, opts)
 
       def rect(x, y, width, height, opts \\ []),
         do: Server.rect(@me, x, y, width, height, opts)
@@ -178,13 +176,13 @@ defmodule OLED.Display do
             ) :: :ok
 
   @doc """
-  Draw an image from a file.
-  The image can be an PNG format with alpha channel.
+  Get display dimensions
   """
-  @callback image(
-              image_path :: String.t(),
-              x :: integer(),
-              y :: integer(),
-              opts :: Server.image_opts()
-            ) :: :ok | {:error, term()}
+  @callback get_dimensions() ::
+              {
+                :ok,
+                width :: integer(),
+                height :: integer()
+              }
+              | {:error, term()}
 end

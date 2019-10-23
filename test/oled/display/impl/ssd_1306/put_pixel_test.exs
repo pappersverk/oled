@@ -1,7 +1,7 @@
 defmodule OLED.Display.Impl.SSD1306.PutPixelTest do
   use ExUnit.Case
 
-  alias OLED.Display.Impl.SSD1306
+  alias OLED.Display.Impl.SSD1306.Draw
 
   import OLED.BufferTestHelper, only: [build_state: 2, ascii_render: 1]
 
@@ -10,8 +10,8 @@ defmodule OLED.Display.Impl.SSD1306.PutPixelTest do
 
   test "draw pixel" do
     assert build_state(@w, @h)
-           |> SSD1306.put_pixel(1, 1, [])
-           |> SSD1306.put_pixel(2, 2, state: :off)
+           |> Draw.put_pixel(1, 1, [])
+           |> Draw.put_pixel(2, 2, state: :off)
            |> ascii_render() == [
              "        ",
              " #      ",
@@ -26,8 +26,8 @@ defmodule OLED.Display.Impl.SSD1306.PutPixelTest do
 
   test "draw many" do
     assert build_state(@w, @h)
-           |> SSD1306.put_pixel(1, 1, [])
-           |> SSD1306.put_pixel(2, 2, [])
+           |> Draw.put_pixel(1, 1, [])
+           |> Draw.put_pixel(2, 2, [])
            |> ascii_render() == [
              "        ",
              " #      ",
@@ -42,8 +42,8 @@ defmodule OLED.Display.Impl.SSD1306.PutPixelTest do
 
   test "draw xor" do
     assert build_state(@w, @h)
-           |> SSD1306.put_pixel(1, 1, [])
-           |> SSD1306.put_pixel(1, 1, mode: :xor)
+           |> Draw.put_pixel(1, 1, [])
+           |> Draw.put_pixel(1, 1, mode: :xor)
            |> ascii_render() == [
              "        ",
              "        ",
@@ -58,7 +58,7 @@ defmodule OLED.Display.Impl.SSD1306.PutPixelTest do
 
   test "draw rect out 1" do
     assert build_state(@w, @h)
-           |> SSD1306.put_pixel(20, 20, [])
+           |> Draw.put_pixel(20, 20, [])
            |> ascii_render() == [
              "        ",
              "        ",
@@ -73,7 +73,7 @@ defmodule OLED.Display.Impl.SSD1306.PutPixelTest do
 
   test "draw rect out 2" do
     assert build_state(@w, @h)
-           |> SSD1306.put_pixel(-5, -5, [])
+           |> Draw.put_pixel(-5, -5, [])
            |> ascii_render() == [
              "        ",
              "        ",

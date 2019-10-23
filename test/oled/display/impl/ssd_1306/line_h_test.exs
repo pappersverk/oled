@@ -1,7 +1,7 @@
 defmodule OLED.Display.Impl.SSD1306.LineHTest do
   use ExUnit.Case
 
-  alias OLED.Display.Impl.SSD1306
+  alias OLED.Display.Impl.SSD1306.Draw
 
   import OLED.BufferTestHelper, only: [build_state: 2, ascii_render: 1]
 
@@ -10,7 +10,7 @@ defmodule OLED.Display.Impl.SSD1306.LineHTest do
 
   test "draw inside" do
     assert build_state(@w, @h)
-           |> SSD1306.line_h(1, 1, 10, [])
+           |> Draw.line_h(1, 1, 10, [])
            |> ascii_render() == [
              "                                ",
              " ##########                     ",
@@ -25,7 +25,7 @@ defmodule OLED.Display.Impl.SSD1306.LineHTest do
 
   test "draw out 1" do
     assert build_state(@w, @h)
-           |> SSD1306.line_h(-4, 1, 8, [])
+           |> Draw.line_h(-4, 1, 8, [])
            |> ascii_render() == [
              "                                ",
              "####                            ",
@@ -40,7 +40,7 @@ defmodule OLED.Display.Impl.SSD1306.LineHTest do
 
   test "draw out 2" do
     assert build_state(@w, @h)
-           |> SSD1306.line_h(30, 1, 8, [])
+           |> Draw.line_h(30, 1, 8, [])
            |> ascii_render() == [
              "                                ",
              "                              ##",
@@ -55,7 +55,7 @@ defmodule OLED.Display.Impl.SSD1306.LineHTest do
 
   test "draw out 3" do
     assert build_state(@w, @h)
-           |> SSD1306.line_h(-10, 1, 8, [])
+           |> Draw.line_h(-10, 1, 8, [])
            |> ascii_render() == [
              "                                ",
              "                                ",
@@ -70,7 +70,7 @@ defmodule OLED.Display.Impl.SSD1306.LineHTest do
 
   test "draw out 4" do
     assert build_state(@w, @h)
-           |> SSD1306.line_h(32, 1, 8, [])
+           |> Draw.line_h(32, 1, 8, [])
            |> ascii_render() == [
              "                                ",
              "                                ",
