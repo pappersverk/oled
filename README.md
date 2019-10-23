@@ -1,5 +1,8 @@
 # OLED
 
+[![Hex version](https://img.shields.io/hexpm/v/oled.svg "Hex version")](https://hex.pm/packages/oled)
+
+
 OLED is a library to manage the monochrome OLED screen based (for now) on chip SSD1306 connected by SPI or I2C.
 
 The idea is to support other similar chips also.
