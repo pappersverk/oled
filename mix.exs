@@ -16,7 +16,7 @@ defmodule OLED.MixProject do
       description: description(),
       docs: docs(),
       package: package(),
-      source_url: "https://github.com/luisgabrielroldan/oled",
+      source_url: "https://github.com/pappersverk/oled",
       dialyzer: [
         flags: [:unmatched_returns, :error_handling, :race_conditions, :underspecs]
       ]
@@ -48,7 +48,7 @@ defmodule OLED.MixProject do
       ],
       licenses: ["Apache License 2.0"],
       links: %{
-        "GitHub" => "https://github.com/luisgabrielroldan/oled"
+        "GitHub" => "https://github.com/pappersverk/oled"
       }
     }
   end
@@ -57,7 +57,7 @@ defmodule OLED.MixProject do
     [
       main: "readme",
       source_ref: "v#{@version}",
-      source_url: "https://github.com/luisgabrielroldan/oled",
+      source_url: "https://github.com/pappersverk/oled",
       extras: [
         "README.md"
       ]
