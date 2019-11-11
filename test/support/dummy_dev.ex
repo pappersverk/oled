@@ -10,20 +10,20 @@ defmodule OLED.DummyDev do
   end
 
   @impl true
-  def reset(%__MODULE__{}) do
+  def reset(%__MODULE__{} = state) do
     send(self(), :reset)
-    %__MODULE__{}
+    state
   end
 
   @impl true
-  def transfer(%__MODULE__{}, buffer) do
+  def transfer(%__MODULE__{} = state, buffer) do
     send(self(), {:transfer, buffer})
-    %__MODULE__{}
+    state
   end
 
   @impl true
-  def command(%__MODULE__{}, cmd) do
+  def command(%__MODULE__{} = state, cmd) do
     send(self(), {:command, cmd})
-    %__MODULE__{}
+    state
   end
 end

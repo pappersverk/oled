@@ -138,7 +138,7 @@ defmodule OLED.Display.Impl.SSD1306 do
   end
 
   def display_frame(%__MODULE__{} = state, data, opts) do
-    if data != state.width * state.height / 8 do
+    if byte_size(data) == state.width * state.height / 8 do
       display(%{state | buffer: data}, opts)
     else
       {:error, :invalid_data_size}
