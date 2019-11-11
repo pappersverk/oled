@@ -20,6 +20,21 @@ Graphic primitives
 - [ ] Filled Rects
 - [ ] Filled Circles
 - [ ] Filled Polygons
+- [ ] Text rendering
+- [x] Scenic driver
+
+
+
+<p align="center">
+  <br>
+  <br>
+  <img src="images/scenic_preview.gif"><br>
+  Scenic driver with dithering enabled
+  <br>
+</p>
+
+
+
 
 ## Basic Setup
 
@@ -102,6 +117,7 @@ config :my_app, MyApp.MyDisplay,
 
 ## Scenic Driver
 
+
 OLED is compatible with [Scenic](https://github.com/boydm/scenic) thanks to [rpi_fb_capture](https://github.com/fhunleth/rpi_fb_capture).
 
 *1. Add the dependencies*
@@ -112,7 +128,7 @@ def deps do
     {:oled, "~> 0.1.0"},
     {:scenic, "~> 0.10"},
     {:scenic_driver_nerves_rpi, "~> 0.10", targets: @all_targets},
-    {:rpi_fb_capture, "~> 0.1.0"}
+    {:rpi_fb_capture, "~> 0.3.0"}
   ]
 end
 ```
@@ -138,7 +154,8 @@ config :my_app, :viewport, %{
           address: 60,
           width: 128,
           height: 32
-        ]
+        ],
+        dithering: :sierra
       ]
     }
   ]
@@ -158,7 +175,8 @@ config :my_app, :viewport, %{
     %{
       module: OLED.Scenic.Driver,
       opts: [
-        display: MyApp.MyDisplay
+        display: MyApp.MyDisplay,
+        dithering: :sierra
       ]
     }
   ]
