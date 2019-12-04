@@ -1,8 +1,7 @@
 defmodule OLED.MixProject do
   use Mix.Project
 
-  @version "0.3.0"
-  @all_targets [:rpi, :rpi0, :rpi2, :rpi3, :rpi3a, :rpi4, :bbb, :x86_64]
+  @version "0.3.1"
 
   def project do
     [
