@@ -99,6 +99,9 @@ defmodule OLED.Display do
 
       def rect(x, y, width, height, opts \\ []),
         do: Server.rect(@me, x, y, width, height, opts)
+
+      def get_dimensions(),
+        do: Server.get_dimensions(@me)
     end
   end
 

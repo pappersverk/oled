@@ -1,7 +1,7 @@
 defmodule OLED.MixProject do
   use Mix.Project
 
-  @version "0.2.0"
+  @version "0.3.0"
   @all_targets [:rpi, :rpi0, :rpi2, :rpi3, :rpi3a, :rpi4, :bbb, :x86_64]
 
   def project do
@@ -70,9 +70,6 @@ defmodule OLED.MixProject do
       {:circuits_spi, "~> 0.1"},
       {:circuits_i2c, "~> 0.1"},
       {:circuits_gpio, "~> 0.1"},
-      {:scenic, "~> 0.10", optional: true},
-      {:scenic_driver_nerves_rpi, "~> 0.10", optional: true, targets: @all_targets},
-      {:rpi_fb_capture, "~> 0.3.0", optional: true},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:earmark, "~> 1.3", only: :dev, runtime: false},
       {:dialyxir, "1.0.0-rc.4", only: :dev, runtime: false}
