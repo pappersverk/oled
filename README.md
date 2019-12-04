@@ -7,6 +7,8 @@ OLED is a library to manage the monochrome OLED screen based (for now) on chip S
 
 The idea is to support other similar chips also.
 
+NOTE: On OLED v0.3.0 the Scenic driver has been moved to [scenic_driver_oled](https://github.com/pappersverk/scenic_driver_oled).
+
 ![Sample](images/sample.jpeg)
 
 ## Features
