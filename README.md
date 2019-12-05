@@ -1,5 +1,6 @@
 # OLED
 
+[![CircleCI](https://circleci.com/gh/pappersverk/oled.svg?style=svg)](https://circleci.com/gh/pappersverk/oled)
 [![Hex version](https://img.shields.io/hexpm/v/oled.svg "Hex version")](https://hex.pm/packages/oled)
 
 
