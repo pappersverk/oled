@@ -100,6 +100,9 @@ defmodule OLED.Display do
       def rect(x, y, width, height, opts \\ []),
         do: Server.rect(@me, x, y, width, height, opts)
 
+      def fill_rect(x, y, width, height, opts \\ []),
+        do: Server.fill_rect(@me, x, y, width, height, opts)
+
       def get_dimensions(),
         do: Server.get_dimensions(@me)
     end
@@ -171,6 +174,17 @@ defmodule OLED.Display do
   Draw a rect
   """
   @callback rect(
+              x :: integer(),
+              y :: integer(),
+              width :: integer(),
+              height :: integer(),
+              opts :: Server.pixel_opts()
+            ) :: :ok
+
+  @doc """
+  Draw a filled rect
+  """
+  @callback fill_rect(
               x :: integer(),
               y :: integer(),
               width :: integer(),

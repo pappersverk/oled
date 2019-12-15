@@ -71,6 +71,10 @@ defmodule OLED.Display.Server do
     do: GenServer.call(server, {:rect, x, y, width, height, opts})
 
   @doc false
+  def fill_rect(server, x, y, width, height, opts),
+    do: GenServer.call(server, {:fill_rect, x, y, width, height, opts})
+
+  @doc false
   def get_dimensions(server),
     do: GenServer.call(server, :get_dimensions)
 
@@ -121,6 +125,12 @@ defmodule OLED.Display.Server do
   def handle_call({:rect, x, y, width, height, opts}, _from, {impl, state}) do
     state
     |> impl.rect(x, y, width, height, opts)
+    |> handle_response(impl, state)
+  end
+
+  def handle_call({:fill_rect, x, y, width, height, opts}, _from, {impl, state}) do
+    state
+    |> impl.fill_rect(x, y, width, height, opts)
     |> handle_response(impl, state)
   end
 

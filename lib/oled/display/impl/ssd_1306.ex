@@ -61,6 +61,7 @@ defmodule OLED.Display.Impl.SSD1306 do
   defdelegate line(state, x1, y1, x2, y2, opts), to: Draw
   defdelegate line_h(state, x, y, width, opts), to: Draw
   defdelegate line_v(state, x, y, height, opts), to: Draw
+  defdelegate fill_rect(state, x, y, width, height, opts), to: Draw
 
   def init_dev(config) do
     case Keyword.get(config, :type) do

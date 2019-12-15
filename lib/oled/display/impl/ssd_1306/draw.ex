@@ -47,6 +47,12 @@ defmodule OLED.Display.Impl.SSD1306.Draw do
     end
   end
 
+  def fill_rect(state, x, y, width, height, opts) do
+    Enum.reduce(y..(y + height), state, fn y1, state ->
+      line_h(state, x, y1, width, opts)
+    end)
+  end
+
   def line(state, x1, y1, x2, y2, opts) do
     # sort points
     {x1, y1, x2, y2} =
