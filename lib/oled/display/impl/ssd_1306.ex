@@ -36,11 +36,6 @@ defmodule OLED.Display.Impl.SSD1306 do
   @ssd1306_deactivate_scroll 0x2E
   # @ssd1306_activate_scroll 0x2F
 
-  # Full width of SSD1306 controller memory
-  @lcd_total_width 128
-  # Full height of SSD1306 controller memory
-  @lcd_total_height 64
-
   @default_config [
     width: 128,
     height: 64,
@@ -125,27 +120,46 @@ defmodule OLED.Display.Impl.SSD1306 do
   end
 
   def display(%__MODULE__{} = state, opts \\ []) do
+    %{buffer: buffer, width: width} = state
     opts = Keyword.merge(@display_opts, opts)
 
-    memory_mode = get_memory_mode(opts[:memory_mode] || :horizontal)
+    buffer = translate_buffer(buffer, width, opts[:memory_mode])
 
-    state
-    |> command([@ssd1306_memorymode, memory_mode])
-    |> command([@ssd1306_pageaddr, 0, trunc(state.height / 8 - 1)])
-    |> command([@ssd1306_columnaddr, 0, state.width - 1])
-    |> transfer(state.buffer)
-    |> command([@ssd1306_memorymode, 0])
+    display_frame(state, buffer, opts)
+  end
+
+  defp translate_buffer(buffer, width, :horizontal) do
+    for <<page::binary-size(width) <- buffer>> do
+      for(<<b::1 <- page>>, do: b)
+      |> Enum.chunk_every(width)
+      |> Enum.zip()
+      |> Enum.map(fn bits ->
+        bits
+        |> Tuple.to_list()
+        |> Enum.reverse()
+        |> Enum.into(<<>>, fn bit -> <<bit::1>> end)
+      end)
+    end
+    |> List.flatten()
+    |> Enum.into(<<>>)
   end
 
   def display_frame(%__MODULE__{} = state, data, opts) do
+    memory_mode = get_memory_mode(opts[:memory_mode] || :horizontal)
+
     if byte_size(data) == state.width * state.height / 8 do
-      display(%{state | buffer: data}, opts)
+      state
+      |> command([@ssd1306_memorymode, memory_mode])
+      |> command([@ssd1306_pageaddr, 0, trunc(state.height / 8 - 1)])
+      |> command([@ssd1306_columnaddr, 0, state.width - 1])
+      |> transfer(data)
+      |> command([@ssd1306_memorymode, 0])
     else
       {:error, :invalid_data_size}
     end
   end
 
-  def clear_buffer(%__MODULE__{} = state, pixel_state)
+  def clear_buffer(%__MODULE__{width: w, height: h} = state, pixel_state)
       when pixel_state in [:on, :off] do
     value =
       case pixel_state do
@@ -157,7 +171,7 @@ defmodule OLED.Display.Impl.SSD1306 do
       end
 
     buffer =
-      for _ <- 1..trunc(@lcd_total_width * @lcd_total_height / 8), into: <<>> do
+      for _ <- 1..trunc(w * h / 8), into: <<>> do
         value
       end
 

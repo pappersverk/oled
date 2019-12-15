@@ -15,6 +15,25 @@ defmodule OLED.Display.Impl.SSD1306Test do
     assert_received {:command, 3}
   end
 
+  describe "display/2" do
+    test "with valid data" do
+      data =
+        for v <- 1..8, into: <<>> do
+          <<v>>
+        end
+
+      state = %SSD1306{
+        dev: %DummyDev{},
+        width: 8,
+        height: 8,
+        buffer: data
+      }
+
+      assert %SSD1306{buffer: buffer} = SSD1306.display(state, [])
+      assert buffer = <<0, 0, 0, 0, 128, 120, 102, 85>>
+    end
+  end
+
   describe "display_frame/2" do
     test "with valid data" do
       state = %SSD1306{
