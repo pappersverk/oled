@@ -1,7 +1,7 @@
 defmodule OLED.MixProject do
   use Mix.Project
 
-  @version "0.3.1"
+  @version "0.3.2"
 
   def project do
     [
@@ -71,7 +71,7 @@ defmodule OLED.MixProject do
       {:circuits_gpio, "~> 0.1"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:earmark, "~> 1.3", only: :dev, runtime: false},
-      {:dialyxir, "1.0.0-rc.4", only: :dev, runtime: false}
+      {:dialyxir, "1.0.0-rc.7", only: :dev, runtime: false}
     ]
   end
 

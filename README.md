@@ -17,10 +17,10 @@ Graphic primitives
 - [x] Points
 - [x] Lines
 - [x] Rects
-- [x] Circles
-- [ ] Polygons
 - [x] Filled Rects
+- [x] Circles
 - [ ] Filled Circles
+- [ ] Polygons
 - [ ] Filled Polygons
 - [ ] Text rendering (Try [Chisel](https://github.com/luisgabrielroldan/chisel))
 
@@ -44,7 +44,7 @@ Graphic primitives
 ```elixir
 def deps do
   [
-    {:oled, "~> 0.1.0"}
+    {:oled, "~> 0.3.0"}
   ]
 end
 ```

@@ -130,6 +130,6 @@ defmodule OLED.Display.Impl.SSD1306.Draw do
     draw_circle(x0, y0, x, y, f, ddF_x, ddF_y, opts, state)
   end
 
-  defp draw_circle(x0, y0, x, y, f, ddF_x, ddF_y, opts, state),
+  defp draw_circle(_x0, _y0, _x, _y, _f, _ddF_x, _ddF_y, _opts, state),
     do: state
 end
