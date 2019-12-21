@@ -1,31 +1,28 @@
 defmodule OLED.Display.Impl.SSD1306.Draw do
   @moduledoc false
 
-  @bits_per_seg 8
-
   use Bitwise, only_operators: true
 
   def put_pixel(%{width: w, height: h} = state, x, y, opts)
       when x >= 0 and x < w and y >= 0 and y < h do
     %{buffer: buffer, width: width} = state
 
-    seg_offset = x + trunc(y / @bits_per_seg) * width
+    offset = width * y + x
 
-    <<
-      prev::bytes-size(seg_offset),
-      seg::bytes-size(1),
-      rest::binary
-    >> = buffer
+    <<prev::bitstring-size(offset), p::1, next::bitstring>> = buffer
 
-    seg_value =
-      calc_seg_value(
-        seg,
-        y,
-        opts[:state] || :on,
-        opts[:mode] || :normal
-      )
+    pixel_state = opts[:state] || :on
+    mode = opts[:mode] || :normal
 
-    buffer = build_buffer(prev, seg_value, rest)
+    np = if pixel_state == :on, do: 1, else: 0
+
+    np =
+      case mode do
+        :normal -> p ||| np
+        :xor -> p ^^^ np
+      end
+
+    buffer = <<prev::bitstring, np::1, next::bitstring>>
 
     %{state | buffer: buffer}
   end
@@ -50,6 +47,12 @@ defmodule OLED.Display.Impl.SSD1306.Draw do
     end
   end
 
+  def fill_rect(state, x, y, width, height, opts) do
+    Enum.reduce(y..(y + height), state, fn y1, state ->
+      line_h(state, x, y1, width, opts)
+    end)
+  end
+
   def line(state, x1, y1, x2, y2, opts) do
     # sort points
     {x1, y1, x2, y2} =
@@ -68,71 +71,13 @@ defmodule OLED.Display.Impl.SSD1306.Draw do
     end)
   end
 
+  def line_h(state, _x, _y, width, _opts) when width < 1,
+    do: state
+
   def line_h(state, x, y, width, opts) do
-    cond do
-      x < 0 and width + x < 0 ->
-        :skip
-
-      x >= state.width ->
-        :skip
-
-      y >= state.height ->
-        :skip
-
-      y < 0 ->
-        :skip
-
-      true ->
-        x2 =
-          cond do
-            x < 0 -> 0
-            x > state.width - 1 -> state.width - 1
-            true -> x
-          end
-
-        y2 =
-          cond do
-            y < 0 -> 0
-            y > state.height - 1 -> state.height - 1
-            true -> y
-          end
-
-        width2 = width - (x2 - x)
-
-        {x2, y2, width2}
-    end
-    |> case do
-      {x, y, width} ->
-        seg_offset = x + trunc(y / @bits_per_seg) * state.width
-
-        total_segs =
-          if width > state.width - x do
-            state.width - x
-          else
-            width
-          end
-
-        <<
-          prev::bytes-size(seg_offset),
-          seg::bytes-size(total_segs),
-          rest::binary
-        >> = state.buffer
-
-        seg =
-          write_line_h(
-            seg,
-            y,
-            opts[:state] || :on,
-            opts[:mode] || :normal
-          )
-
-        buffer = <<prev <> seg <> rest>>
-
-        %{state | buffer: buffer}
-
-      :skip ->
-        state
-    end
+    state
+    |> put_pixel(x, y, opts)
+    |> line_h(x + 1, y, width - 1, opts)
   end
 
   def line_v(state, _x, _y, height, _opts) when height < 1,
@@ -144,36 +89,47 @@ defmodule OLED.Display.Impl.SSD1306.Draw do
     |> line_v(x, y + 1, height - 1, opts)
   end
 
-  defp write_line_h(<<s::bytes-size(1), tail::binary>>, y, state, mode) do
-    seg_value =
-      calc_seg_value(
-        s,
-        y,
-        state,
-        mode
-      )
+  def circle(state, x0, y0, r, opts) do
+    x = 0
+    y = r
 
-    <<(<<seg_value>> <> write_line_h(tail, y, state, mode))>>
+    state =
+      state
+      |> put_pixel(x0, y0 + r, opts)
+      |> put_pixel(x0, y0 - r, opts)
+      |> put_pixel(x0 + r, y0, opts)
+      |> put_pixel(x0 - r, y0, opts)
+
+    draw_circle(x0, y0, x, y, 1 - r, 1, -2 * r, opts, state)
   end
 
-  defp write_line_h(<<>>, _y, _state, _mode),
-    do: <<>>
+  defp draw_circle(x0, y0, x, y, f, ddF_x, ddF_y, opts, state)
+       when x < y do
+    {y, ddF_y, f} =
+      if f >= 0 do
+        {y - 1, ddF_y + 2, f + ddF_y}
+      else
+        {y, ddF_y, f}
+      end
 
-  defp build_buffer(prev, seg_value, rest) do
-    seg = <<seg_value>>
+    x = x + 1
+    ddF_x = ddF_x + 2
+    f = f + ddF_x
 
-    <<prev <> seg <> rest>>
+    state =
+      state
+      |> put_pixel(x0 + x, y0 + y, opts)
+      |> put_pixel(x0 - x, y0 + y, opts)
+      |> put_pixel(x0 + x, y0 - y, opts)
+      |> put_pixel(x0 - x, y0 - y, opts)
+      |> put_pixel(x0 + y, y0 + x, opts)
+      |> put_pixel(x0 - y, y0 + x, opts)
+      |> put_pixel(x0 + y, y0 - x, opts)
+      |> put_pixel(x0 - y, y0 - x, opts)
+
+    draw_circle(x0, y0, x, y, f, ddF_x, ddF_y, opts, state)
   end
 
-  defp calc_seg_value(<<seg_value>>, y, :on, :normal),
-    do: seg_value ||| 1 <<< rem(y, @bits_per_seg)
-
-  defp calc_seg_value(<<seg_value>>, y, :off, :normal),
-    do: seg_value &&& ~~~(1 <<< rem(y, @bits_per_seg))
-
-  defp calc_seg_value(<<seg_value>>, y, :on, :xor),
-    do: seg_value ^^^ (1 <<< rem(y, @bits_per_seg))
-
-  defp calc_seg_value(<<seg_value>>, _y, _state, _mode),
-    do: seg_value
+  defp draw_circle(_x0, _y0, _x, _y, _f, _ddF_x, _ddF_y, _opts, state),
+    do: state
 end
