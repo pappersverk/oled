@@ -88,4 +88,48 @@ defmodule OLED.Display.Impl.SSD1306.Draw do
     |> put_pixel(x, y, opts)
     |> line_v(x, y + 1, height - 1, opts)
   end
+
+  def circle(state, x0, y0, r, opts) do
+    x = 0
+    y = r
+
+    state =
+      state
+      |> put_pixel(x0, y0 + r, opts)
+      |> put_pixel(x0, y0 - r, opts)
+      |> put_pixel(x0 + r, y0, opts)
+      |> put_pixel(x0 - r, y0, opts)
+
+    draw_circle(x0, y0, x, y, 1 - r, 1, -2 * r, opts, state)
+  end
+
+  defp draw_circle(x0, y0, x, y, f, ddF_x, ddF_y, opts, state)
+       when x < y do
+    {y, ddF_y, f} =
+      if f >= 0 do
+        {y - 1, ddF_y + 2, f + ddF_y}
+      else
+        {y, ddF_y, f}
+      end
+
+    x = x + 1
+    ddF_x = ddF_x + 2
+    f = f + ddF_x
+
+    state =
+      state
+      |> put_pixel(x0 + x, y0 + y, opts)
+      |> put_pixel(x0 - x, y0 + y, opts)
+      |> put_pixel(x0 + x, y0 - y, opts)
+      |> put_pixel(x0 - x, y0 - y, opts)
+      |> put_pixel(x0 + y, y0 + x, opts)
+      |> put_pixel(x0 - y, y0 + x, opts)
+      |> put_pixel(x0 + y, y0 - x, opts)
+      |> put_pixel(x0 - y, y0 - x, opts)
+
+    draw_circle(x0, y0, x, y, f, ddF_x, ddF_y, opts, state)
+  end
+
+  defp draw_circle(x0, y0, x, y, f, ddF_x, ddF_y, opts, state),
+    do: state
 end

@@ -67,6 +67,10 @@ defmodule OLED.Display.Server do
     do: GenServer.call(server, {:line_v, x, y, height, opts})
 
   @doc false
+  def circle(server, x0, y0, r, opts),
+    do: GenServer.call(server, {:circle, x0, y0, r, opts})
+
+  @doc false
   def rect(server, x, y, width, height, opts),
     do: GenServer.call(server, {:rect, x, y, width, height, opts})
 
@@ -125,6 +129,12 @@ defmodule OLED.Display.Server do
   def handle_call({:rect, x, y, width, height, opts}, _from, {impl, state}) do
     state
     |> impl.rect(x, y, width, height, opts)
+    |> handle_response(impl, state)
+  end
+
+  def handle_call({:circle, x0, y0, r, opts}, _from, {impl, state}) do
+    state
+    |> impl.circle(x0, y0, r, opts)
     |> handle_response(impl, state)
   end
 

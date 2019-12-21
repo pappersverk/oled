@@ -17,12 +17,12 @@ Graphic primitives
 - [x] Points
 - [x] Lines
 - [x] Rects
-- [ ] Circles
+- [x] Circles
 - [ ] Polygons
-- [ ] Filled Rects
+- [x] Filled Rects
 - [ ] Filled Circles
 - [ ] Filled Polygons
-- [ ] Text rendering
+- [ ] Text rendering (Try [Chisel](https://github.com/luisgabrielroldan/chisel))
 
 
 

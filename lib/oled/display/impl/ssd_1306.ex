@@ -57,6 +57,7 @@ defmodule OLED.Display.Impl.SSD1306 do
             external_vcc: nil
 
   defdelegate put_pixel(state, x, y, opts), to: Draw
+  defdelegate circle(state, x0, y0, r, opts), to: Draw
   defdelegate rect(state, x, y, width, height, opts), to: Draw
   defdelegate line(state, x1, y1, x2, y2, opts), to: Draw
   defdelegate line_h(state, x, y, width, opts), to: Draw
