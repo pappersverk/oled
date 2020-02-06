@@ -18,7 +18,7 @@ defmodule OLED.Display.Impl.SSD1306.Draw do
 
     np =
       case mode do
-        :normal -> p ||| np
+        :normal -> np
         :xor -> p ^^^ np
       end
 
