@@ -52,8 +52,6 @@ defmodule OLED.Display.Impl.SSD1306Test do
       assert_received {:command, 32}
       assert_received {:command, 1}
       assert_received {:transfer, ^data}
-      assert_received {:command, 32}
-      assert_received {:command, 0}
     end
 
     test "with invalid data" do

@@ -155,7 +155,6 @@ defmodule OLED.Display.Impl.SSD1306 do
       |> command([@ssd1306_pageaddr, 0, trunc(state.height / 8 - 1)])
       |> command([@ssd1306_columnaddr, 0, state.width - 1])
       |> transfer(data)
-      |> command([@ssd1306_memorymode, 0])
     else
       {:error, :invalid_data_size}
     end
