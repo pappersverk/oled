@@ -39,7 +39,6 @@ defmodule OLED.Display.Impl.SSD1306.LineTest do
            ]
   end
 
-  #|> Enum.each(&IO.inspect/1)
   test "draw xor" do
     assert build_state(@w, @h)
            |> Draw.line(0, 0, 32, 8, [])
@@ -69,6 +68,38 @@ defmodule OLED.Display.Impl.SSD1306.LineTest do
              "               #####            ",
              "                    #####       "
            ]
+  end
+
+  test "draw horizontal rect" do
+    assert build_state(@w, @h)
+           |> Draw.line(4, 5, 16, 5, [])
+           |> ascii_render() ==
+             [
+               "                                ",
+               "                                ",
+               "                                ",
+               "                                ",
+               "                                ",
+               "    #############               ",
+               "                                ",
+               "                                "
+             ]
+  end
+
+  test "draw vertical rect" do
+    assert build_state(@w, @h)
+           |> Draw.line(10, 1, 10, 6, [])
+           |> ascii_render() ==
+             [
+               "                                ",
+               "          #                     ",
+               "          #                     ",
+               "          #                     ",
+               "          #                     ",
+               "          #                     ",
+               "          #                     ",
+               "                                "
+             ]
   end
 
   test "draw rect out 2" do

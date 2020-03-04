@@ -62,13 +62,16 @@ defmodule OLED.Display.Impl.SSD1306.Draw do
         {x1, y1, x2, y2}
       end
 
-    dx = x2 - x1
-    dy = y2 - y1
+    cond do
+      x1 == x2 ->
+        line_v(state, x1, y1, y2 - y1 + 1, opts)
 
-    Enum.reduce(x1..x2, state, fn x, acc ->
-      y = trunc(y1 + dy * (x - x1) / dx)
-      put_pixel(acc, x, y, opts)
-    end)
+      y1 == y2 ->
+        line_h(state, x1, y1, x2 - x1 + 1, opts)
+
+      true ->
+        do_line(state, x1, y1, x2, y2, opts)
+    end
   end
 
   def line_h(state, _x, _y, width, _opts) when width < 1,
@@ -132,4 +135,14 @@ defmodule OLED.Display.Impl.SSD1306.Draw do
 
   defp draw_circle(_x0, _y0, _x, _y, _f, _ddF_x, _ddF_y, _opts, state),
     do: state
+
+  defp do_line(state, x1, y1, x2, y2, opts) do
+    dx = x2 - x1
+    dy = y2 - y1
+
+    Enum.reduce(x1..x2, state, fn x, acc ->
+      y = trunc(y1 + dy * (x - x1) / dx)
+      put_pixel(acc, x, y, opts)
+    end)
+  end
 end
