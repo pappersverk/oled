@@ -45,7 +45,7 @@ Graphic primitives
 ```elixir
 def deps do
   [
-    {:oled, "~> 0.3.0"}
+    {:oled, "~> 0.3.4"}
   ]
 end
 ```
