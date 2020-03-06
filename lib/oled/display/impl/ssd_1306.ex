@@ -121,7 +121,9 @@ defmodule OLED.Display.Impl.SSD1306 do
     |> command([@ssd1306_displayon])
   end
 
-  def display(%__MODULE__{} = state, opts \\ []) do
+  def display(state, opts \\ [])
+
+  def display(%__MODULE__{} = state, opts) do
     %{buffer: buffer, width: width} = state
     opts = Keyword.merge(@display_opts, opts)
 
@@ -129,6 +131,9 @@ defmodule OLED.Display.Impl.SSD1306 do
 
     display_frame(state, buffer, opts)
   end
+
+  def display(error, _opts),
+    do: error
 
   defp translate_buffer(buffer, width, :horizontal) do
     for <<page::binary-size(width) <- buffer>> do
@@ -178,6 +183,9 @@ defmodule OLED.Display.Impl.SSD1306 do
 
     %{state | buffer: buffer}
   end
+
+  def clear_buffer(error, _pixel_state),
+    do: error
 
   def get_dimensions(%__MODULE__{width: width, height: height}),
     do: {:ok, width, height}
