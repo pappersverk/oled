@@ -129,13 +129,35 @@ defmodule OLED.Display.Impl.SSD1306 do
 
     buffer = translate_buffer(buffer, width, opts[:memory_mode])
 
-    display_frame(state, buffer, opts)
+    display_raw_frame(state, buffer, opts)
   end
 
   def display(error, _opts),
     do: error
 
-  defp translate_buffer(buffer, width, :horizontal) do
+  def display_frame(%__MODULE__{width: width} = state, data, opts) do
+    opts = Keyword.merge(@display_opts, opts)
+
+    buffer = translate_buffer(data, width, opts[:memory_mode])
+
+    display_raw_frame(state, buffer, opts)
+  end
+
+  def display_raw_frame(%__MODULE__{} = state, data, opts) do
+    memory_mode = get_memory_mode(opts[:memory_mode] || :horizontal)
+
+    if byte_size(data) == state.width * state.height / 8 do
+      state
+      |> command([@ssd1306_memorymode, memory_mode])
+      |> command([@ssd1306_pageaddr, 0, trunc(state.height / 8 - 1)])
+      |> command([@ssd1306_columnaddr, 0, state.width - 1])
+      |> transfer(data)
+    else
+      {:error, :invalid_data_size}
+    end
+  end
+
+  def translate_buffer(buffer, width, :horizontal) do
     for <<page::binary-size(width) <- buffer>> do
       for(<<b::1 <- page>>, do: b)
       |> Enum.chunk_every(width)
@@ -149,20 +171,6 @@ defmodule OLED.Display.Impl.SSD1306 do
     end
     |> List.flatten()
     |> Enum.into(<<>>)
-  end
-
-  def display_frame(%__MODULE__{} = state, data, opts) do
-    memory_mode = get_memory_mode(opts[:memory_mode] || :horizontal)
-
-    if byte_size(data) == state.width * state.height / 8 do
-      state
-      |> command([@ssd1306_memorymode, memory_mode])
-      |> command([@ssd1306_pageaddr, 0, trunc(state.height / 8 - 1)])
-      |> command([@ssd1306_columnaddr, 0, state.width - 1])
-      |> transfer(data)
-    else
-      {:error, :invalid_data_size}
-    end
   end
 
   def clear_buffer(%__MODULE__{width: w, height: h} = state, pixel_state)

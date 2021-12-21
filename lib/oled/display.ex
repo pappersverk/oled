@@ -79,6 +79,9 @@ defmodule OLED.Display do
       def display_frame(data, opts \\ []),
         do: Server.display_frame(@me, data, opts)
 
+      def display_raw_frame(data, opts \\ []),
+        do: Server.display_raw_frame(@me, data, opts)
+
       def clear(),
         do: Server.clear(@me)
 
@@ -118,9 +121,20 @@ defmodule OLED.Display do
   @callback display() :: :ok
 
   @doc """
-  Transfer a data frame to the display buffer.
+  Transfer a data frame to the screen. The data frame format is equal to the display buffer
+  that gets altered via the drawing commands.
+
+  Calling this function transfers the data frame directly to the screen and does not alter the display buffer.
   """
   @callback display_frame(data :: binary(), opts :: Server.display_frame_opts()) :: :ok
+
+  @doc """
+  Transfer a raw data frame to the screen.
+
+  A raw data frame is in a different format than the display buffer.
+  To transform a display buffer to a raw data frame, `OLED.Display.Impl.SSD1306.translate_buffer/3` can be used.
+  """
+  @callback display_raw_frame(data :: binary(), opts :: Server.display_frame_opts()) :: :ok
 
   @doc """
   Clear the buffer.

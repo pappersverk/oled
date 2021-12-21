@@ -36,6 +36,27 @@ defmodule OLED.Display.Impl.SSD1306Test do
 
   describe "display_frame/2" do
     test "with valid data" do
+      data =
+        for v <- 1..8, into: <<>> do
+          <<v>>
+        end
+
+      state = %SSD1306{
+        dev: %DummyDev{},
+        width: 8,
+        height: 8,
+      }
+
+      assert %SSD1306{} = SSD1306.display_frame(state, data, [])
+
+      assert_received {:command, 32}
+      assert_received {:command, 0}
+      assert_received {:transfer, <<0, 0, 0, 0, 128, 120, 102, 85>>}
+    end
+  end
+
+  describe "display_raw_frame/2" do
+    test "with valid data" do
       state = %SSD1306{
         dev: %DummyDev{},
         width: 96,
@@ -47,7 +68,7 @@ defmodule OLED.Display.Impl.SSD1306Test do
           <<0>>
         end
 
-      assert %SSD1306{} = SSD1306.display_frame(state, data, memory_mode: :vertical)
+      assert %SSD1306{} = SSD1306.display_raw_frame(state, data, memory_mode: :vertical)
 
       assert_received {:command, 32}
       assert_received {:command, 1}
@@ -67,7 +88,7 @@ defmodule OLED.Display.Impl.SSD1306Test do
         end
 
       assert {:error, :invalid_data_size} =
-               SSD1306.display_frame(state, data, memory_mode: :vertical)
+               SSD1306.display_raw_frame(state, data, memory_mode: :vertical)
     end
   end
 end
