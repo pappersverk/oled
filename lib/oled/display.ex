@@ -88,6 +88,12 @@ defmodule OLED.Display do
       def clear(pixel_state),
         do: Server.clear(@me, pixel_state)
 
+      def put_buffer(data),
+        do: Server.put_buffer(@me, data)
+
+      def get_buffer(),
+          do: Server.get_buffer(@me)
+
       def put_pixel(x, y, opts \\ []),
         do: Server.put_pixel(@me, x, y, opts)
 
@@ -145,6 +151,21 @@ defmodule OLED.Display do
   Clear the buffer putting all the pixels on certain state.
   """
   @callback clear(pixel_state :: Server.pixel_state()) :: :ok
+
+  @doc """
+  Override the current buffer which is the internal data structure that is sent to the screen with `c:display/0`.
+
+  A possible use-case is to draw some content, get the buffer via `c:get_buffer/0`
+  and set it again at a later time to save calls to the draw functions.
+  """
+  @callback put_buffer(data :: binary()) :: :ok | {:error, term()}
+
+  @doc """
+  Get the current buffer which is the internal data structure that is changed by the draw methods
+  and sent to the screen with `c:display/0`.
+  """
+  @callback get_buffer() :: {:ok, binary()}
+
 
   @doc """
   Put a pixel on the buffer. The pixel can be on or off and be drawed in xor mode (if the pixel is already on is turned off).

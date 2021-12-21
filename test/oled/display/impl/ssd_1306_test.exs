@@ -91,4 +91,58 @@ defmodule OLED.Display.Impl.SSD1306Test do
                SSD1306.display_raw_frame(state, data, memory_mode: :vertical)
     end
   end
+
+  describe "put_buffer/1" do
+    test "with valid data" do
+      state = %SSD1306{
+        dev: %DummyDev{},
+        width: 8,
+        height: 8,
+      }
+
+      data =
+        for v <- 1..8, into: <<>> do
+          <<v>>
+        end
+
+      assert %SSD1306{buffer: buffer} = SSD1306.put_buffer(state, data)
+
+      assert buffer = <<0, 0, 0, 0, 128, 120, 102, 85>>
+    end
+
+    test "with invalid data" do
+      state = %SSD1306{
+        dev: %DummyDev{},
+        width: 8,
+        height: 8
+      }
+
+      data =
+        for v <- 1..16, into: <<>> do
+          <<v>>
+        end
+
+      assert {:error, :invalid_data_size} =
+               SSD1306.put_buffer(state, data)
+    end
+  end
+
+  describe "get_buffer/0" do
+    test "with valid data" do
+      data =
+        for v <- 1..8, into: <<>> do
+          <<v>>
+        end
+
+      state = %SSD1306{
+        dev: %DummyDev{},
+        width: 8,
+        height: 8,
+        buffer: data
+      }
+
+      assert {:ok, buffer} = SSD1306.get_buffer(state)
+      assert buffer = <<0, 0, 0, 0, 128, 120, 102, 85>>
+    end
+  end
 end

@@ -195,6 +195,17 @@ defmodule OLED.Display.Impl.SSD1306 do
   def clear_buffer(error, _pixel_state),
     do: error
 
+  def put_buffer(%__MODULE__{} = state, data) do
+    if byte_size(data) == state.width * state.height / 8 do
+      %{state | buffer: data}
+    else
+      {:error, :invalid_data_size}
+    end
+  end
+
+  def get_buffer(%__MODULE__{buffer: buffer}),
+    do: {:ok, buffer}
+
   def get_dimensions(%__MODULE__{width: width, height: height}),
     do: {:ok, width, height}
 
