@@ -158,19 +158,18 @@ defmodule OLED.Display.Impl.SSD1306 do
   end
 
   def translate_buffer(buffer, width, :horizontal) do
-    for <<page::binary-size(width) <- buffer>> do
-      for(<<b::1 <- page>>, do: b)
-      |> Enum.chunk_every(width)
-      |> Enum.zip()
-      |> Enum.map(fn bits ->
-        bits
-        |> Tuple.to_list()
-        |> Enum.reverse()
-        |> Enum.into(<<>>, fn bit -> <<bit::1>> end)
-      end)
+    transformation =
+      for x <- 0..(width - 1), y <- 0..7 do
+        (7 - y) * width + x
+      end
+
+    for <<page::binary-size(width) <- buffer>>, into: <<>> do
+      for source <- transformation, into: <<>> do
+        rest = width * 8 - source - 1
+        <<_::size(source)-unit(1), b::1, _::size(rest)-unit(1)>> = page
+        <<b::1>>
+      end
     end
-    |> List.flatten()
-    |> Enum.into(<<>>)
   end
 
   def clear_buffer(%__MODULE__{width: w, height: h} = state, pixel_state)
