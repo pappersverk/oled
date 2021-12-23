@@ -145,4 +145,31 @@ defmodule OLED.Display.Impl.SSD1306Test do
       assert buffer = <<0, 0, 0, 0, 128, 120, 102, 85>>
     end
   end
+
+  describe "translate_buffer/3" do
+    test "with valid data" do
+      # Buffer is generated using the following draw functions:
+      # buffer =
+      #   OLED.BufferTestHelper.build_state(32, 16)
+      #   |> OLED.Display.Impl.SSD1306.Draw.line_h(1, 0, 30, [])
+      #   |> OLED.Display.Impl.SSD1306.Draw.line_h(1, 15, 30, [])
+      #   |> OLED.Display.Impl.SSD1306.Draw.line_v(0, 1, 14, [])
+      #   |> OLED.Display.Impl.SSD1306.Draw.line_v(31, 1, 14, [])
+      #   |> OLED.Display.Impl.SSD1306.Draw.circle(10, 8, 6, [])
+      #   |> OLED.Display.Impl.SSD1306.Draw.circle(21, 8, 6, [])
+      #   |> Map.get(:buffer)
+
+
+      buffer = <<127, 255, 255, 254, 128, 0, 0, 1, 128, 248, 31, 1, 131, 6, 96, 193, 132, 1,
+        128, 33, 132, 1, 128, 33, 136, 1, 128, 17, 136, 1, 128, 17, 136, 1, 128, 17,
+        136, 1, 128, 17, 136, 1, 128, 17, 132, 1, 128, 33, 132, 1, 128, 33, 131, 6,
+        96, 193, 128, 248, 31, 1, 127, 255, 255, 254>>
+
+      assert SSD1306.translate_buffer(buffer, 32, :horizontal)
+        == <<254, 1, 1, 1, 193, 49, 9, 9, 5, 5, 5, 5, 5, 9, 9, 241, 241, 9, 9, 5, 5, 5, 5,
+               5, 9, 9, 49, 193, 1, 1, 1, 254, 127, 128, 128, 128, 135, 152, 160, 160, 192,
+               192, 192, 192, 192, 160, 160, 159, 159, 160, 160, 192, 192, 192, 192, 192,
+               160, 160, 152, 135, 128, 128, 128, 127>>
+    end
+  end
 end
