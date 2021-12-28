@@ -129,29 +129,21 @@ defmodule OLED.Display.Impl.SSD1306 do
 
     buffer = translate_buffer(buffer, width, opts[:memory_mode])
 
-    display_frame(state, buffer, opts)
+    display_raw_frame(state, buffer, opts)
   end
 
   def display(error, _opts),
     do: error
 
-  defp translate_buffer(buffer, width, :horizontal) do
-    for <<page::binary-size(width) <- buffer>> do
-      for(<<b::1 <- page>>, do: b)
-      |> Enum.chunk_every(width)
-      |> Enum.zip()
-      |> Enum.map(fn bits ->
-        bits
-        |> Tuple.to_list()
-        |> Enum.reverse()
-        |> Enum.into(<<>>, fn bit -> <<bit::1>> end)
-      end)
-    end
-    |> List.flatten()
-    |> Enum.into(<<>>)
+  def display_frame(%__MODULE__{width: width} = state, data, opts) do
+    opts = Keyword.merge(@display_opts, opts)
+
+    buffer = translate_buffer(data, width, opts[:memory_mode])
+
+    display_raw_frame(state, buffer, opts)
   end
 
-  def display_frame(%__MODULE__{} = state, data, opts) do
+  def display_raw_frame(%__MODULE__{} = state, data, opts) do
     memory_mode = get_memory_mode(opts[:memory_mode] || :horizontal)
 
     if byte_size(data) == state.width * state.height / 8 do
@@ -162,6 +154,21 @@ defmodule OLED.Display.Impl.SSD1306 do
       |> transfer(data)
     else
       {:error, :invalid_data_size}
+    end
+  end
+
+  def translate_buffer(buffer, width, :horizontal) do
+    transformation =
+      for x <- 0..(width - 1), y <- 0..7 do
+        (7 - y) * width + x
+      end
+
+    for <<page::binary-size(width) <- buffer>>, into: <<>> do
+      for source <- transformation, into: <<>> do
+        rest = width * 8 - source - 1
+        <<_::size(source)-unit(1), b::1, _::size(rest)-unit(1)>> = page
+        <<b::1>>
+      end
     end
   end
 
@@ -186,6 +193,17 @@ defmodule OLED.Display.Impl.SSD1306 do
 
   def clear_buffer(error, _pixel_state),
     do: error
+
+  def put_buffer(%__MODULE__{} = state, data) do
+    if byte_size(data) == state.width * state.height / 8 do
+      %{state | buffer: data}
+    else
+      {:error, :invalid_data_size}
+    end
+  end
+
+  def get_buffer(%__MODULE__{buffer: buffer}),
+    do: {:ok, buffer}
 
   def get_dimensions(%__MODULE__{width: width, height: height}),
     do: {:ok, width, height}

@@ -47,8 +47,20 @@ defmodule OLED.Display.Server do
     do: GenServer.call(server, {:display_frame, data, opts})
 
   @doc false
+  def display_raw_frame(server, data, opts \\ []),
+    do: GenServer.call(server, {:display_raw_frame, data, opts})
+
+  @doc false
   def clear(server, pixel_state \\ :off),
     do: GenServer.call(server, {:clear, pixel_state})
+
+  @doc false
+  def put_buffer(server, data),
+    do: GenServer.call(server, {:put_buffer, data})
+
+  @doc false
+  def get_buffer(server),
+    do: GenServer.call(server, :get_buffer)
 
   @doc false
   def put_pixel(server, x, y, opts \\ []),
@@ -96,10 +108,29 @@ defmodule OLED.Display.Server do
     |> handle_response(impl, state)
   end
 
+  @doc false
+  def handle_call({:display_raw_frame, data, opts}, _from, {impl, state}) do
+    state
+    |> impl.display_raw_frame(data, opts)
+    |> handle_response(impl, state)
+  end
+
   def handle_call({:clear, pixel_state}, _from, {impl, state}) do
     state
     |> impl.clear_buffer(pixel_state)
     |> handle_response(impl, state)
+  end
+
+  def handle_call({:put_buffer, data}, _from, {impl, state}) do
+    state
+    |> impl.put_buffer(data)
+    |> handle_response(impl, state)
+  end
+
+  def handle_call(:get_buffer, _from, {impl, state}) do
+    res = impl.get_buffer(state)
+
+    {:reply, res, {impl, state}}
   end
 
   def handle_call({:put_pixel, x, y, opts}, _from, {impl, state}) do
