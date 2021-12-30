@@ -1,7 +1,7 @@
 defmodule OLED.MixProject do
   use Mix.Project
 
-  @version "0.3.4"
+  @version "0.3.5"
 
   def project do
     [
@@ -43,7 +43,8 @@ defmodule OLED.MixProject do
     %{
       files: ["lib", "mix.exs", "README.md"],
       maintainers: [
-        "Gabriel Roldan"
+        "Gabriel Roldan",
+        "Phillipp Ohlandt"
       ],
       licenses: ["Apache License 2.0"],
       links: %{
