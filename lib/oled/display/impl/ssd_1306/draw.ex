@@ -54,20 +54,20 @@ defmodule OLED.Display.Impl.SSD1306.Draw do
   end
 
   def line(state, x1, y1, x2, y2, opts) do
-    # sort points
-    {x1, y1, x2, y2} =
-      if x1 > x2 do
-        {x2, y2, x1, y1}
-      else
-        {x1, y1, x2, y2}
-      end
-
     cond do
       x1 == x2 ->
-        line_v(state, x1, y1, y2 - y1 + 1, opts)
+        if y1 < y2 do
+          line_v(state, x1, y1, y2 - y1 + 1, opts)
+        else
+          line_v(state, x1, y2, y1 - y2 + 1, opts)
+        end
 
       y1 == y2 ->
-        line_h(state, x1, y1, x2 - x1 + 1, opts)
+        if x1 < x2 do
+          line_h(state, x1, y1, x2 - x1 + 1, opts)
+        else
+          line_h(state, x2, y1, x1 - x2 + 1, opts)
+        end
 
       true ->
         do_line(state, x1, y1, x2, y2, opts)
@@ -136,13 +136,28 @@ defmodule OLED.Display.Impl.SSD1306.Draw do
   defp draw_circle(_x0, _y0, _x, _y, _f, _ddF_x, _ddF_y, _opts, state),
     do: state
 
-  defp do_line(state, x1, y1, x2, y2, opts) do
-    dx = x2 - x1
-    dy = y2 - y1
+  defp do_line(state, x0, y0, x1, y1, opts) do
+    dx = abs(x1 - x0)
+    dy = -abs(y1 - y0)
+    sx = if x0 < x1, do: 1, else: -1
+    sy = if y0 < y1, do: 1, else: -1
+    error = dx + dy
 
-    Enum.reduce(x1..x2, state, fn x, acc ->
-      y = trunc(y1 + dy * (x - x1) / dx)
-      put_pixel(acc, x, y, opts)
-    end)
+    do_line(state, x0, y0, x1, y1, dx, dy, sx, sy, error, opts)
+  end
+
+  defp do_line(state, x0, y0, x1, y1, _dx, _dy, _sx, _sy, _error, opts)
+       when x0 == x1 and y0 == y1 do
+    put_pixel(state, x0, y0, opts)
+  end
+
+  defp do_line(state, x0, y0, x1, y1, dx, dy, sx, sy, error, opts) do
+    e2 = error * 2
+    {error, x0} = if e2 > dy, do: {error + dy, x0 + sx}, else: {error, x0}
+    {error, y0} = if e2 < dx, do: {error + dx, y0 + sy}, else: {error, y0}
+
+    state
+    |> put_pixel(x0, y0, opts)
+    |> do_line(x0, y0, x1, y1, dx, dy, sx, sy, error, opts)
   end
 end
