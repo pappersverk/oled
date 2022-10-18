@@ -67,12 +67,12 @@ defmodule OLED.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:circuits_spi, "~> 0.1"},
-      {:circuits_i2c, "~> 0.1"},
-      {:circuits_gpio, "~> 0.1"},
-      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
-      {:earmark, "~> 1.3", only: :dev, runtime: false},
-      {:dialyxir, "1.0.0-rc.7", only: :dev, runtime: false}
+      {:circuits_spi, "~> 1.3"},
+      {:circuits_i2c, "~> 1.0.1"},
+      {:circuits_gpio, "~> 1.0.1"},
+      {:ex_doc, "~> 0.28", only: :dev, runtime: false},
+      {:earmark, "~> 1.4", only: :dev, runtime: false},
+      {:dialyxir, "1.2.0", only: :dev, runtime: false}
     ]
   end
 
